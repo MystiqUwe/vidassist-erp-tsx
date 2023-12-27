@@ -1,7 +1,9 @@
+'use client';
 import { CalendarDateRangePicker } from "@/components/date-range-picker";
+import DialogEditCourse from "@/components/dialog/course-edit";
 import { Overview } from "@/components/overview";
 import { RecentSales } from "@/components/recent-sales";
-import { Button } from "@/components/ui/button";
+
 import {
   Card,
   CardContent,
@@ -10,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 export default function page() {
   return (
@@ -21,7 +24,7 @@ export default function page() {
           </h2>
           <div className="hidden md:flex items-center space-x-2">
             <CalendarDateRangePicker />
-            <Button>Download</Button>
+            <DialogEditCourse />
           </div>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
