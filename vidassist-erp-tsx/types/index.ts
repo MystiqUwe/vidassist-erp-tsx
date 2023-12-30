@@ -10,6 +10,26 @@ export interface NavItem {
   description?: string;
 }
 
+export type Role = {
+  value: string;
+  label: string;
+};
+
+export type IPersmission = {
+  id: string;
+  created_at: string;
+  role: "user" | "admin";
+  user_id: string;
+  user: IUser;
+};
+
+type IUser = {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+}
+
 export interface NavItemWithChildren extends NavItem {
   items: NavItemWithChildren[];
 }

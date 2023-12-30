@@ -1,6 +1,6 @@
 "use client";
 import * as z from "zod";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Trash } from "lucide-react";
@@ -25,10 +25,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-// import FileUpload from "@/components/FileUpload";
 import { useToast } from "../ui/use-toast";
 import { FileUpload } from "../file-upload";
+import {
+  addAvatarToUser,
+  createMember,
+} from "@/app/(dashboard)/dashboard/user/actions";
+import { Role } from "@/types";
+import Avatar from "../avatar-upload";
 const ImgSchema = z.object({
   fileName: z.string(),
   name: z.string(),
@@ -39,75 +43,127 @@ const ImgSchema = z.object({
   fileUrl: z.string(),
   url: z.string(),
 });
-export const IMG_MAX_LIMIT = 3;
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(3, { message: "Product Name must be at least 3 characters" }),
-  imgUrl: z
-    .array(ImgSchema)
-    .max(IMG_MAX_LIMIT, { message: "You can only add up to 3 images" })
-    .min(1, { message: "At least one image must be added." }),
-  description: z
-    .string()
-    .min(3, { message: "Product description must be at least 3 characters" }),
-  price: z.coerce.number(),
-  category: z.string().min(1, { message: "Please select a category" }),
-});
+export const IMG_MAX_LIMIT = 1;
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .min(3, { message: "Product Name must be at least 3 characters" }),
+    avatar_url: z.string(),
+    email: z.string().email(),
+    password: z.string().min(6, { message: "Password should be 6 characters" }),
+    confirmPassword: z
+      .string()
+      .min(6, { message: "Password should be 6 characters" }),
+    role: z.string().min(1, { message: "Please select a role" }),
+  })
+  .refine((data) => data.confirmPassword === data.password, {
+    message: "Password doesn't match",
+    path: ["confirmPassword"],
+  });
 
-type ProductFormValues = z.infer<typeof formSchema>;
+type UserFormValues = z.infer<typeof formSchema>;
 
-interface ProductFormProps {
+interface UserFormProps {
   initialData: any | null;
-  categories: any;
+  roles: Role[];
 }
 
-export const ProductForm: React.FC<ProductFormProps> = ({
-  initialData,
-  categories,
-}) => {
+export const UserForm: React.FC<UserFormProps> = ({ initialData, roles }) => {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imgLoading, setImgLoading] = useState(false);
-  const title = initialData ? "Edit product" : "Create product";
-  const description = initialData ? "Edit a product." : "Add a new product";
-  const toastMessage = initialData ? "Product updated." : "Product created.";
+  const title = initialData ? "Edit user" : "Create user";
+  const description = initialData ? "Edit a user." : "Add a new user";
+  const toastMessage = initialData ? "User updated." : "User created.";
   const action = initialData ? "Save changes" : "Create";
+  const [isPending, startTransition] = useTransition();
+  const [avatar_url, setAvatarUrl] = useState<string | null>(null);
 
   const defaultValues = initialData
-    ? initialData
+    ? {
+        name: initialData?.name,
+        email: initialData?.email,
+        avatar_url: "",
+        role: initialData?.role,
+        password: "",
+        confirmPassword: "",
+      }
     : {
         name: "",
-        description: "",
-        price: 0,
-        imgUrl: [],
-        category: "",
+        email: "",
+        avatar_url: "",
+        role: "",
+        password: "",
+        confirmPassword: "",
       };
 
-  const form = useForm<ProductFormValues>({
+  const form = useForm<UserFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
 
-  const onSubmit = async (data: ProductFormValues) => {
+  const onSubmit = async (data: UserFormValues) => {
     try {
       setLoading(true);
       if (initialData) {
-        // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
+        console.log("data", data);
+        //Update Record
+        //Find out what changed
+        //ToDo:
+        /* startTransition(async () => {
+          const { error } = JSON.parse(
+            await updateUserAccountById(
+              initialData?.id,
+              initialData?.permissionId, //permission id
+              data
+            )
+          );
+
+          if (error?.message) {
+            toast({
+              title: "Failed to update",
+              description: (
+                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+                  <code className="text-white">{error?.message}</code>
+                </pre>
+              ),
+            });
+          } else {
+            toast({
+              title: "Sucessfully Updated",
+              description: (
+                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+                  <code className="text-white">
+                    {JSON.stringify(data, null, 2)}
+                  </code>
+                </pre>
+              ),
+            });
+          }
+        });*/
       } else {
-        // const res = await axios.post(`/api/products/create-product`, data);
-        // console.log("product", res);
+        const result = await createMember(data);
+        const { error } = JSON.parse(result);
+        if (error?.message) {
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem with your request.",
+          });
+        } else {
+          toast({
+            variant: "default",
+            title: "Success",
+            description: "User was created successfully.",
+          });
+          router.refresh();
+          router.push(`/dashboard/user`);
+        }
       }
-      router.refresh();
-      router.push(`/dashboard/products`);
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
-      });
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -128,11 +184,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     } catch (error: any) {
     } finally {
       setLoading(false);
-      false;
+      setOpen(false);
     }
   };
-
-  const triggerImgUrlValidation = () => form.trigger("imgUrl");
 
   return (
     <>
@@ -163,10 +217,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         >
           <FormField
             control={form.control}
-            name="imgUrl"
+            name="avatar_url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Images</FormLabel>
+                <FormLabel>Avatar</FormLabel>
                 <FormControl>
                   <FileUpload onChange={field.onChange} endpoint="image" />
                 </FormControl>
@@ -180,11 +234,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Product name"
+                      placeholder="Public display name."
                       {...field}
                     />
                   </FormControl>
@@ -194,14 +248,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="description"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>E-Mail</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Product description"
+                      type="email"
+                      placeholder="email@gmail.com"
                       {...field}
                     />
                   </FormControl>
@@ -211,12 +266,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="price"
+              name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="number" disabled={loading} {...field} />
+                    <Input
+                      placeholder="******"
+                      type="password"
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -224,10 +283,27 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="category"
+              name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="******"
+                      type="password"
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Roles</FormLabel>
                   <Select
                     disabled={loading}
                     onValueChange={field.onChange}
@@ -238,15 +314,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       <SelectTrigger>
                         <SelectValue
                           defaultValue={field.value}
-                          placeholder="Select a category"
+                          placeholder="Select a role"
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {/* @ts-ignore  */}
-                      {categories.map((category) => (
-                        <SelectItem key={category._id} value={category._id}>
-                          {category.name}
+                      {roles.map((role) => (
+                        <SelectItem key={role.value} value={role.value}>
+                          {role.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

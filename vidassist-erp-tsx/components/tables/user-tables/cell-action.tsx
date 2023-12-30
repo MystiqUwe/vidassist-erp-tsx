@@ -1,4 +1,5 @@
 "use client";
+import { deleteMemberById } from "@/app/(dashboard)/dashboard/user/actions";
 import { AlertModal } from "@/components/modal/alert-modal";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,10 +9,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
 import { User } from "@/constants/data";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 interface CellActionProps {
   data: User;
@@ -22,8 +24,28 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const params = useParams();
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    startTransition(async () => {
+      const result = JSON.parse(await deleteMemberById(data.id));
+      if (result?.error?.message) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "There was a problem with your request.",
+        });
+      } else {
+        toast({
+          variant: "default",
+          title: "Success",
+          description: "User deleted successfully!",
+        });
+      }
+    });
+    setOpen(false);
+  };
 
   return (
     <>

@@ -7,10 +7,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 export const columns: ColumnDef<User>[] = [
   {
     id: "select",
-    header: ({ table }) => (  
+    header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value: boolean) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value: boolean) =>
+          table.toggleAllPageRowsSelected(!!value)
+        }
         aria-label="Select all"
       />
     ),
@@ -29,16 +31,12 @@ export const columns: ColumnDef<User>[] = [
     header: "NAME",
   },
   {
-    accessorKey: "company",
-    header: "COMPANY",
+    accessorKey: "email",
+    header: "EMAIL",
   },
   {
     accessorKey: "role",
     header: "ROLE",
-  },
-  {
-    accessorKey: "status",
-    header: "STATUS",
   },
   {
     id: "actions",

@@ -2,14 +2,12 @@ import { Icons } from "@/components/icons";
 import { NavItem, SidebarNavItem } from "@/types";
 
 export type User = {
-  id: number;
+  id: string;
   name: string;
-  company: string;
+  email: string;
   role: string;
-  verified: boolean;
-  status: string;
 };
-export const users: User[] = [
+/*export const users: User[] = [
   {
     id: 1,
     name: "Candice Schiner",
@@ -90,7 +88,7 @@ export const users: User[] = [
     verified: false,
     status: "Active",
   },
-];
+];*/
 
 export type Employee = {
   id: number;
@@ -119,7 +117,7 @@ export const navItems: NavItem[] = [
     label: "Dashboard",
   },
   {
-    title: "User",
+    title: "Users",
     href: "/dashboard/user",
     icon: "user",
     label: "user",
