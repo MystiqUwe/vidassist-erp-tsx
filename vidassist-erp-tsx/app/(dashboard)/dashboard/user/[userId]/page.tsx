@@ -24,7 +24,6 @@ export default async function Page({ params }: { params: { userId: string } }) {
               avatar_url: permission?.users?.avatar_url,
             };
           });
-          console.log("users", users[0]);
           return users[0];
         }
       }

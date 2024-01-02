@@ -47,27 +47,9 @@ export const navItems: NavItem[] = [
     label: "video",
   },
   {
-    title: "Employee",
-    href: "/dashboard/employee",
-    icon: "employee",
-    label: "employee",
-  },
-  {
-    title: "Profile",
-    href: "/dashboard/profile",
-    icon: "profile",
-    label: "profile",
-  },
-  {
-    title: "Kanban",
-    href: "/dashboard/kanban",
-    icon: "kanban",
-    label: "kanban",
-  },
-  {
-    title: "Login",
-    href: "/",
-    icon: "login",
-    label: "login",
+    title: "Create video",
+    href: "/dashboard/create-video",
+    icon: "upload",
+    label: "upload",
   },
 ];

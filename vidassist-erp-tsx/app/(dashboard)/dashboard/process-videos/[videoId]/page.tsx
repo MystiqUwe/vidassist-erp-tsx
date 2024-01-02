@@ -9,7 +9,7 @@ import { Trash } from "lucide-react";
 
 const ViewVideo = ({ params }: { params: { videoId: string } }) => {
   //Retrieve Video from database
-  const playbackId = "MiDSq019ZVmHWC9YKvc1GpOMgZ6jmrGRNMPXbfRtuzH00";
+  const playbackId = "rNwYyVZxucSVh016aTUHZGYAh9pX00touJedopZQ5khJA";
   const breadcrumbItems = [
     { title: "Process videos", link: "/dashboard/process-videos" },
     { title: "Watch", link: `dashboard/process-videos/${params.videoId}` },

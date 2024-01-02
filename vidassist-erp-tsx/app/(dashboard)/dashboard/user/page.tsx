@@ -2,7 +2,6 @@ import BreadCrumb from "@/components/breadcrumb";
 import { UserClient } from "@/components/tables/user-tables/client";
 import { readMembers } from "./actions";
 import type { User } from "@/constants/data";
-import { createSupbaseServerClient } from "@/lib/supabase";
 
 const breadcrumbItems = [{ title: "Users", link: "/dashboard/user" }];
 export default async function page() {

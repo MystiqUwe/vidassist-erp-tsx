@@ -20,8 +20,6 @@ export default async function DashboardLayout({
     return redirect("/auth");
   }
 
-  //console.log("userSession", userSession);
-
   return (
     <>
       <Header />

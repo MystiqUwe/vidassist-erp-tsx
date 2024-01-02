@@ -36,7 +36,8 @@ export async function createMember(data: {
 		password: data.password,
 		email_confirm: true,
 		user_metadata: {
-			role: data.role
+			role: data.role,
+			name: data?.name
 		}
 	})
 
