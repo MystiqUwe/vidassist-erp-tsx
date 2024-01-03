@@ -1,11 +1,9 @@
 import { VideoCard } from "./video-card";
 
 type IVideos = {
-  category: string;
-  title: string;
   id: string;
-  imageUrl: string;
-  producer: string;
+  title: string;
+  description: string;
 };
 
 interface VideosListProps {
@@ -21,9 +19,9 @@ export const VideosList = ({ items }: VideosListProps) => {
             key={item.id}
             id={item.id}
             title={item.title}
-            imageUrl={item.imageUrl!}
-            category={item?.category}
-            producer={item?.producer}
+            description={item.description}
+            // category={item?.category!}
+            // producer={item?.producer!}
           />
         ))}
       </div>
