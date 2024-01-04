@@ -1,6 +1,5 @@
 import { LayoutTemplate } from "@/components/main-layout";
 import { getRatingScales } from "../_actions";
-import { getCategories } from "../../create-video/_actions";
 import CreateRatingForm from "../_components/rating-create-form";
 
 const CreateRatingWithSchemaPage = async ({
@@ -13,7 +12,6 @@ const CreateRatingWithSchemaPage = async ({
   ];
 
   const ratingScales = (await getRatingScales()) || [];
-  const categories = (await getCategories()) || [];
 
   return (
     <>
@@ -27,10 +25,6 @@ const CreateRatingWithSchemaPage = async ({
           ratingOptions={ratingScales.map((rating) => ({
             label: rating.name,
             value: rating.id,
-          }))}
-          categories={categories.map((categorie) => ({
-            label: categorie.name,
-            value: categorie.id,
           }))}
           schemaId={params.schemaId}
         />

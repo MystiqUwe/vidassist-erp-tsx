@@ -1,13 +1,20 @@
 import { LayoutTemplate } from "@/components/main-layout";
-import CreateRatingForm from "./_components/rating-create-form";
-import { getRatingScales } from "./_actions";
+import { getRatingCriteria, getRatingScales } from "../../_actions";
+import { getCategories } from "../../../create-video/_actions";
+import CreateRatingForm from "../../_components/rating-create-form";
 
-const CreateRatingPage = async () => {
+const CreateRatingWithSchemaPage = async ({
+  params,
+}: {
+  params: { criteriaId: string };
+}) => {
   const breadcrumbItems = [
     { title: "Create rating", link: "/dashboard/create-rating" },
   ];
 
   const ratingScales = (await getRatingScales()) || [];
+  const { ratingCriteria: initialData } =
+    (await getRatingCriteria(params.criteriaId)) || [];
 
   return (
     <>
@@ -22,10 +29,11 @@ const CreateRatingPage = async () => {
             label: rating.name,
             value: rating.id,
           }))}
+          initialData={initialData}
         />
       </div>
     </>
   );
 };
 
-export default CreateRatingPage;
+export default CreateRatingWithSchemaPage;

@@ -6,20 +6,28 @@ import { createSupabaseAdmin, createSupbaseServerClient } from "@/lib/supabase";
 export async function getRatingSchemas() {
   const supabase = await createSupbaseServerClient();
 
-  const { data: ratingSchemas, error } = await supabase.from("rating_schema")
-    .select(`
+  const { data: ratingSchemas, error } = await supabase
+    .from("rating_schema")
+    .select(
+      `
     id,
     title,
     rating_criteria (
       id,
       name,
-      description
+      description,
+      position
     ),
     categories (
       id,
       name
     )
-  `);
+  `
+    )
+    .order("position", {
+      referencedTable: "rating_criteria",
+      ascending: true,
+    });
   return { ratingSchemas, error };
 }
 
@@ -61,6 +69,30 @@ export async function deleteRatingSchema(schemaId: string) {
   } else {
     return {
       ratingCriterias: null,
+      error: "Error creating rating criteria - no session",
+    };
+  }
+}
+
+export async function reorderRatingCriteria(
+  updateData: { id: string; position: number }[]
+) {
+  const { data: userSession } = await readUserSession();
+
+  if (userSession.session?.user.id) {
+    const supabase = await createSupabaseAdmin();
+    for (let item of updateData) {
+      await supabase
+        .from("rating_criteria")
+        .update({ position: item.position })
+        .match({ id: item.id })
+        .select()
+        .single();
+    }
+    return { message: "success", error: null };
+  } else {
+    return {
+      message: "error",
       error: "Error creating rating criteria - no session",
     };
   }

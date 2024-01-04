@@ -30,7 +30,8 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { updateRatingCriteria } from "../_actions";
 
 const formSchema = z.object({
   name: z.string().min(4, {
@@ -42,7 +43,7 @@ const formSchema = z.object({
   rating_scale_id: z.string().min(1),
 });
 
-const defaultValues = {
+let defaultValues = {
   name: "",
   description: "",
   rating_scale_id: "",
@@ -52,30 +53,56 @@ type CreateRatingFormValues = z.infer<typeof formSchema>;
 
 interface CreateRatingForm {
   ratingOptions: { label: string; value: string }[] | [];
-  categories: { label: string; value: string }[] | [];
-  schemaId: string;
+  schemaId?: string;
+  initialData?: {
+    id: string;
+    name: string;
+    description: string;
+    rating_scale_id: string;
+  } | null;
 }
 
 const CreateRatingForm = ({
   ratingOptions,
-  categories,
   schemaId,
+  initialData,
 }: CreateRatingForm) => {
   const router = useRouter();
-
+  if (initialData) {
+    defaultValues = {
+      name: initialData.name,
+      description: initialData.description,
+      rating_scale_id: initialData.rating_scale_id,
+    };
+  }
   const form = useForm<CreateRatingFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
 
   const onSubmit = async (values: CreateRatingFormValues) => {
-    const newValues = { ...values, rating_schema_id: schemaId };
-    const result = await axios.patch(`/api/create-rating-criteria`, newValues);
-    console.log("result: ", result);
-    if (result.status >= 200 && result.status <= 300) {
-      if (result?.data) {
+    if (initialData) {
+      const newValues = { ...values, id: initialData.id };
+      const { ratingCriteria, error } = await updateRatingCriteria(newValues);
+      if (!error) {
         router.push(`/dashboard/create-schema`);
         router.refresh();
+        console.log(ratingCriteria);
+      } else {
+        console.log("[update-rating-criteria-error]", error);
+      }
+    } else {
+      const newValues = { ...values, rating_schema_id: schemaId };
+      const result = await axios.patch(
+        `/api/create-rating-criteria`,
+        newValues
+      );
+      console.log("result: ", result);
+      if (result.status >= 200 && result.status <= 300) {
+        if (result?.data) {
+          router.push(`/dashboard/create-schema`);
+          router.refresh();
+        }
       }
     }
   };
@@ -148,7 +175,7 @@ const CreateRatingForm = ({
                   <PopoverContent className="w-[200px] p-0">
                     <Command>
                       <CommandInput placeholder="Search rating system..." />
-                      <CommandEmpty>No language found.</CommandEmpty>
+                      <CommandEmpty>No rating scale found.</CommandEmpty>
                       <CommandGroup>
                         {ratingOptions.map((option) => (
                           <CommandItem
