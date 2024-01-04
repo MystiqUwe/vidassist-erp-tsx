@@ -1,10 +1,10 @@
 "use client";
 
 import * as z from "zod";
-import axios from "axios";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import axios from "axios";
+
 import {
   Form,
   FormControl,
@@ -16,10 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
-import { FileUpload } from "@/components/file-upload";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Popover,
   PopoverContent,
@@ -34,63 +30,47 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  title: z
-    .string()
-    .min(3, { message: "Course name must be at least 3 characters long" })
-    .max(50, { message: "Course name must be at most 50 characters long" }),
-  description: z
-    .string()
-    .min(3, {
-      message: "Course description must be at least 3 characters long",
-    })
-    .max(50, {
-      message: "Course description must be at most 50 characters long",
-    }),
+  name: z.string().min(4, {
+    message: "Rating name must be at least 4 characters long",
+  }),
+  description: z.string().min(4, {
+    message: "Decription must be at least 4 characters long",
+  }),
+  rating_scale_id: z.string().min(1),
   categoryId: z.string().min(1),
 });
 
 const defaultValues = {
-  title: "",
+  name: "",
   description: "",
+  rating_scale_id: "",
   categoryId: "",
 };
 
-type CreateVideoFormValues = z.infer<typeof formSchema>;
+type CreateRatingFormValues = z.infer<typeof formSchema>;
 
-interface CreateVideoForm {
-  initialData: null;
-  comboboxOptions: { label: string; value: string }[] | [];
+interface CreateRatingForm {
+  ratingOptions: { label: string; value: string }[] | [];
+  categories: { label: string; value: string }[] | [];
 }
 
-const CreateVideoForm = ({ initialData, comboboxOptions }: CreateVideoForm) => {
-  const form = useForm<CreateVideoFormValues>({
+const CreateRatingForm = ({ ratingOptions, categories }: CreateRatingForm) => {
+  const router = useRouter();
+
+  const form = useForm<CreateRatingFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
 
-  console.log(comboboxOptions);
-
-  const [isUploaded, setIsUploaded] = useState(false);
-  const [videoUrl, setVideoUrl] = useState("");
-  const router = useRouter();
-
-  const onSubmit = async (values: CreateVideoFormValues) => {
-    console.log(values);
-    if (!isUploaded) {
-      //isUploaded
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "Please upload a video file first.",
-      });
-      return;
-    } else {
-      const data = { ...values, videoUrl };
-      const result = await axios.patch(`/api/process-videos`, data);
-      if (result.status === 200 || result.status == 201) {
-        router.push(`/dashboard/process-videos/${result.data[0]._id}`);
+  const onSubmit = async (values: CreateRatingFormValues) => {
+    const result = await axios.patch(`/api/create-rating-criteria`, values);
+    console.log("result: ", result);
+    if (result.status >= 200 && result.status <= 300) {
+      if (result?.data) {
+        router.push(`/dashboard/my-ratings`);
       }
     }
   };
@@ -104,16 +84,14 @@ const CreateVideoForm = ({ initialData, comboboxOptions }: CreateVideoForm) => {
         >
           <FormField
             control={form.control}
-            name="title"
+            name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Course name</FormLabel>
+                <FormLabel>Rating name</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Course name" />
+                  <Input {...field} placeholder="e.g. 'Usabilaty'" />
                 </FormControl>
-                <FormMessage>
-                  {form.formState.errors.title?.message}
-                </FormMessage>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -122,17 +100,75 @@ const CreateVideoForm = ({ initialData, comboboxOptions }: CreateVideoForm) => {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Course description</FormLabel>
+                <FormLabel>Rating description</FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
                     className="resize-none"
-                    placeholder="Course description"
+                    placeholder="Rating description"
                   />
                 </FormControl>
                 <FormMessage>
                   {form.formState.errors.description?.message}
                 </FormMessage>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="rating_scale_id"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Rating system</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "w-[200px] justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? ratingOptions.find(
+                              (option) => option.value === field.value
+                            )?.label
+                          : "Select rating system"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[200px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search rating system..." />
+                      <CommandEmpty>No language found.</CommandEmpty>
+                      <CommandGroup>
+                        {ratingOptions.map((option) => (
+                          <CommandItem
+                            value={option.label}
+                            key={option.value}
+                            onSelect={() => {
+                              form.setValue("rating_scale_id", option.value);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                option.value === field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {option.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -154,7 +190,7 @@ const CreateVideoForm = ({ initialData, comboboxOptions }: CreateVideoForm) => {
                         )}
                       >
                         {field.value
-                          ? comboboxOptions.find(
+                          ? categories.find(
                               (option) => option.value === field.value
                             )?.label
                           : "Select category"}
@@ -164,10 +200,10 @@ const CreateVideoForm = ({ initialData, comboboxOptions }: CreateVideoForm) => {
                   </PopoverTrigger>
                   <PopoverContent className="w-[200px] p-0">
                     <Command>
-                      <CommandInput placeholder="Search category..." />
+                      <CommandInput placeholder="Search categoriy..." />
                       <CommandEmpty>No language found.</CommandEmpty>
                       <CommandGroup>
-                        {comboboxOptions.map((option) => (
+                        {categories.map((option) => (
                           <CommandItem
                             value={option.label}
                             key={option.value}
@@ -194,22 +230,6 @@ const CreateVideoForm = ({ initialData, comboboxOptions }: CreateVideoForm) => {
               </FormItem>
             )}
           />
-
-          {isUploaded ? (
-            <div className="flex justify-center">
-              <video controls className="w-full" src={videoUrl} />
-            </div>
-          ) : (
-            <FileUpload
-              endpoint="processVideo"
-              onChange={(url) => {
-                if (url) {
-                  setVideoUrl(url);
-                  setIsUploaded(true);
-                }
-              }}
-            />
-          )}
           <Button className="ml-auto" style={{ float: "right" }} type="submit">
             Create
           </Button>
@@ -219,4 +239,4 @@ const CreateVideoForm = ({ initialData, comboboxOptions }: CreateVideoForm) => {
   );
 };
 
-export default CreateVideoForm;
+export default CreateRatingForm;

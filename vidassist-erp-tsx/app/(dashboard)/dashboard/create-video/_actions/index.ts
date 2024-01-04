@@ -9,3 +9,22 @@ export async function getCategories() {
   );
   return categories;
 }
+
+export async function getCourseData(courseId: string) {
+  const supabase = await createSupbaseServerClient();
+  const { data: courses, error } = await supabase
+    .from("courses")
+    .select(
+      `
+    *,
+    videos(
+      id,
+      playbackId,
+      assetId
+    )
+    `
+    )
+    .eq("id", courseId)
+    .single();
+  return courses;
+}

@@ -70,7 +70,7 @@ export async function createVideo(data: {
   const { data: userSession } = await readUserSession();
 
   if (userSession.session?.user.id) {
-    const supabase = await createSupbaseServerClient();
+    const supabase = await createSupabaseAdmin();
     const { data: videos, error: videosError } = await supabase
       .from("videos")
       .insert({

@@ -9,7 +9,6 @@ const CreateCourse = async () => {
   ];
 
   const categories = (await getCategories()) || [];
-  console.log("categories", categories);
 
   return (
     <>
@@ -17,6 +16,7 @@ const CreateCourse = async () => {
         <BreadCrumb items={breadcrumbItems} />
         <CreateVideoHeading />
         <CreateVideoForm
+          initialData={null}
           comboboxOptions={categories.map((category) => ({
             label: category.name,
             value: category.id,

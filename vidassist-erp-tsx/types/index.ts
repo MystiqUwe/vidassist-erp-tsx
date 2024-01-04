@@ -28,7 +28,25 @@ type IUser = {
   created_at: string;
   name: string;
   email: string;
-}
+};
+
+export type CoursesAndVideos = {
+  courses:
+    | {
+        categoryID: string;
+        created_at: string;
+        description: string;
+        id: string;
+        title: string;
+        userId: string;
+        videos: {
+          courseId: string;
+          assetId: string;
+          playbackId: string;
+        }[];
+      }[]
+    | null;
+};
 
 export interface NavItemWithChildren extends NavItem {
   items: NavItemWithChildren[];

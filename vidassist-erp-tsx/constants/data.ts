@@ -8,6 +8,15 @@ export type User = {
   role: string;
 };
 
+export type Test = {
+  categoryID: string;
+  created_at: string;
+  description: string;
+  id: string;
+  title: string;
+  userId: string;
+};
+
 export type Employee = {
   id: number;
   first_name: string;
@@ -51,5 +60,17 @@ export const navItems: NavItem[] = [
     href: "/dashboard/create-video",
     icon: "upload",
     label: "upload",
+  },
+  {
+    title: "Producer videos",
+    href: "/dashboard/producer-videos",
+    icon: "table",
+    label: "table",
+  },
+  {
+    title: "Create Rating",
+    href: "/dashboard/create-rating",
+    icon: "star",
+    label: "star",
   },
 ];
