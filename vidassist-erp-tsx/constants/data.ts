@@ -1,5 +1,5 @@
 import { Icons } from "@/components/icons";
-import { NavItem, SidebarNavItem } from "@/types";
+import { Column, NavItem, SidebarNavItem } from "@/types";
 
 export type User = {
   id: string;
@@ -68,9 +68,24 @@ export const navItems: NavItem[] = [
     label: "table",
   },
   {
+    title: "Create Schema",
+    href: "/dashboard/create-schema",
+    icon: "network",
+    label: "network",
+  },
+  {
     title: "Create Rating",
     href: "/dashboard/create-rating",
     icon: "star",
     label: "star",
   },
 ];
+
+const defaultCols = [
+  {
+    id: "TODO" as const,
+    title: "todo",
+  },
+] satisfies Column[];
+
+export type ColumnId = (typeof defaultCols)[number]["id"];

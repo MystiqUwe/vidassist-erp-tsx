@@ -1,4 +1,5 @@
 import { Icons } from "@/components/icons";
+import { useDndContext, type UniqueIdentifier } from "@dnd-kit/core";
 
 export interface NavItem {
   title: string;
@@ -22,6 +23,11 @@ export type IPersmission = {
   user_id: string;
   user: IUser;
 };
+
+export interface Column {
+  id: UniqueIdentifier;
+  title: string;
+}
 
 type IUser = {
   id: string;

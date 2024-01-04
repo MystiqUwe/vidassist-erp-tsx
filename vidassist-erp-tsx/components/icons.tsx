@@ -34,6 +34,7 @@ import {
   Upload,
   Table,
   Star,
+  Network,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -70,6 +71,7 @@ export const Icons = {
   upload: Upload,
   table: Table,
   star: Star,
+  network: Network,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

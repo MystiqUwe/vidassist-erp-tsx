@@ -30,7 +30,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(4, {
@@ -40,14 +40,12 @@ const formSchema = z.object({
     message: "Decription must be at least 4 characters long",
   }),
   rating_scale_id: z.string().min(1),
-  categoryId: z.string().min(1),
 });
 
 const defaultValues = {
   name: "",
   description: "",
   rating_scale_id: "",
-  categoryId: "",
 };
 
 type CreateRatingFormValues = z.infer<typeof formSchema>;
@@ -55,9 +53,14 @@ type CreateRatingFormValues = z.infer<typeof formSchema>;
 interface CreateRatingForm {
   ratingOptions: { label: string; value: string }[] | [];
   categories: { label: string; value: string }[] | [];
+  schemaId: string;
 }
 
-const CreateRatingForm = ({ ratingOptions, categories }: CreateRatingForm) => {
+const CreateRatingForm = ({
+  ratingOptions,
+  categories,
+  schemaId,
+}: CreateRatingForm) => {
   const router = useRouter();
 
   const form = useForm<CreateRatingFormValues>({
@@ -66,11 +69,13 @@ const CreateRatingForm = ({ ratingOptions, categories }: CreateRatingForm) => {
   });
 
   const onSubmit = async (values: CreateRatingFormValues) => {
-    const result = await axios.patch(`/api/create-rating-criteria`, values);
+    const newValues = { ...values, rating_schema_id: schemaId };
+    const result = await axios.patch(`/api/create-rating-criteria`, newValues);
     console.log("result: ", result);
     if (result.status >= 200 && result.status <= 300) {
       if (result?.data) {
-        router.push(`/dashboard/my-ratings`);
+        router.push(`/dashboard/create-schema`);
+        router.refresh();
       }
     }
   };
@@ -151,64 +156,6 @@ const CreateRatingForm = ({ ratingOptions, categories }: CreateRatingForm) => {
                             key={option.value}
                             onSelect={() => {
                               form.setValue("rating_scale_id", option.value);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                option.value === field.value
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {option.label}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="categoryId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Category</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-[200px] justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value
-                          ? categories.find(
-                              (option) => option.value === field.value
-                            )?.label
-                          : "Select category"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search categoriy..." />
-                      <CommandEmpty>No language found.</CommandEmpty>
-                      <CommandGroup>
-                        {categories.map((option) => (
-                          <CommandItem
-                            value={option.label}
-                            key={option.value}
-                            onSelect={() => {
-                              form.setValue("categoryId", option.value);
                             }}
                           >
                             <Check

@@ -11,6 +11,7 @@ export async function PATCH(req: Request) {
       if (!ratingCriteriaError) {
         return new NextResponse(JSON.stringify(ratingCriteria));
       } else {
+        console.log("ratingCriteriaError", ratingCriteriaError);
         return new NextResponse("Error creating criteria", { status: 500 });
       }
     } else {
