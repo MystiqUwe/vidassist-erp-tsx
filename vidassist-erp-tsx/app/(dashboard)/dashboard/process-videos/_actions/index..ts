@@ -7,7 +7,6 @@ export async function getProcessVideos() {
     .from("courses")
     .select("id, title, description");
   if (!error) {
-    console.log("courses", courses);
     return courses;
   }
   console.log("error", error);
@@ -31,4 +30,14 @@ export async function getProcessVideo(courseId: string) {
     .eq("id", courseId)
     .single();
   return courses;
+}
+
+export async function getRatingContent(categoryId: string) {
+  const supabase = await createSupbaseServerClient();
+  const { data: ratingContent, error } = await supabase
+    .from("rating_schema")
+    .select(`*, rating_criteria(id, name, description, position)`)
+    .eq("categoryId", categoryId)
+    .single();
+  return { ratingContent, error };
 }
