@@ -11,11 +11,12 @@ import {
   CredenzaTitle,
   CredenzaTrigger,
 } from "@/components/credenza";
-import ThePage from "../rating-test/the-page";
 import CreateSteps from "../rating-test/create-steps";
 import { useMultiplestepForm } from "../rating-test/useMultiplestepForm";
 import { Button } from "../ui/button";
 import RatingFormContent from "../rating-test/rating-form-content";
+import { Rating } from "react-simple-star-rating";
+import { useState } from "react";
 
 type RatingItems = {
   categoryId: string;
@@ -32,6 +33,7 @@ type RatingItems = {
 } | null;
 
 export default function MainRating({ items }: { items: RatingItems }) {
+  const [rating, setRating] = useState(0);
   const {
     previousStep,
     nextStep,
@@ -49,6 +51,10 @@ export default function MainRating({ items }: { items: RatingItems }) {
 
   const filterArrayByPosition = (position: number) => {
     return items?.rating_criteria?.filter((item) => item.position === position);
+  };
+
+  const handleRating = (rate: number) => {
+    setRating(rate);
   };
 
   return (

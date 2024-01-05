@@ -1,3 +1,6 @@
+"use client";
+
+import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import FormWrapper from "./FormWrapper";
 import { Rating } from "react-simple-star-rating";
 
@@ -11,28 +14,38 @@ type Criteria =
   | undefined;
 
 const RatingFormContent = ({ criteria }: { criteria: Criteria }) => {
-  console.log("criteria", criteria);
-  // Optinal callback functions
-  const onPointerEnter = () => console.log("Enter");
-  const onPointerLeave = () => console.log("Leave");
-  const onPointerMove = (value: number, index: number) =>
-    console.log(value, index);
+  const [rating, setRating] = useState(0);
+  //ToDo: Man braucht hier noch die VideoID um es eindeutig zu machen
+  //ToDo: Wenn bewertung erstellt -> dann muss der sessionStorage mit dem jeweiligen rating gelöscht werden
+
+  //Mark: Is a bit unperformant
+  useLayoutEffect(() => {
+    if (sessionStorage.getItem(`${criteria?.[0]?.id}`)) {
+      setRating(parseInt(sessionStorage.getItem(`${criteria?.[0]?.id}`) ?? ""));
+    } else {
+      sessionStorage.setItem(`${criteria?.[0]?.id}`, rating.toString());
+    }
+  }, []);
+
   const handleRating = (rate: number) => {
-    console.log("rating", rate);
+    sessionStorage.setItem(`${criteria?.[0]?.id}`, rate.toString());
   };
+
   return (
     //Create a condional rendering
     <div className="flex flex-col gap-5">
       {criteria &&
         criteria.map((item) => (
-          <FormWrapper title={item.name} description={item.description}>
+          <FormWrapper
+            title={item.name}
+            description={item.description}
+            key={item.id}
+          >
             <div className="w-full flex flex-row">
               <Rating
                 onClick={handleRating}
-                onPointerEnter={onPointerEnter}
-                onPointerLeave={onPointerLeave}
-                onPointerMove={onPointerMove}
                 SVGstyle={{ display: "inline" }}
+                initialValue={rating}
                 /* Available Props */
               />
             </div>

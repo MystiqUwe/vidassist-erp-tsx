@@ -6,24 +6,6 @@ type FormWrapperProps = {
   children: ReactNode;
 };
 
-const formVariants = {
-  hidden: {
-    opacity: 0,
-    x: -50,
-  },
-  visible: {
-    opacity: 1,
-    x: 0,
-  },
-  exit: {
-    opacity: 0,
-    x: 50,
-    transition: {
-      ease: "easeOut",
-    },
-  },
-};
-
 const FormWrapper = ({ title, description, children }: FormWrapperProps) => {
   return (
     <>
