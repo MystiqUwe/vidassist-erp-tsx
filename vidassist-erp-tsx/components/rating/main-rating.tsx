@@ -32,7 +32,13 @@ type RatingItems = {
   }[];
 } | null;
 
-export default function MainRating({ items }: { items: RatingItems }) {
+export default function MainRating({
+  items,
+  isDisabled,
+}: {
+  items: RatingItems;
+  isDisabled: boolean;
+}) {
   const [rating, setRating] = useState(0);
   const {
     previousStep,
@@ -60,15 +66,11 @@ export default function MainRating({ items }: { items: RatingItems }) {
   return (
     <Credenza>
       <CredenzaTrigger asChild>
-        <button>Open modal</button>
+        <Button variant="outline" disabled={isDisabled}>
+          Bewerten
+        </Button>
       </CredenzaTrigger>
       <CredenzaContent>
-        <CredenzaHeader>
-          <CredenzaTitle>Credenza</CredenzaTitle>
-          <CredenzaDescription>
-            A responsive modal component for shadcn/ui.
-          </CredenzaDescription>
-        </CredenzaHeader>
         <CredenzaBody>
           <div
             className={`flex justify-between h-[500px] w-11/12 max-w-4xl relative m-1 rounded-lg border border-neutral-700 bg-[#262626] p-4`}

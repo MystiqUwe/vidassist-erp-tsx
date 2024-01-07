@@ -2,7 +2,6 @@ import { readUserSession } from "@/lib/actions";
 import { redirect } from "next/navigation";
 import { getRatingCriterias } from "./_actions";
 import { RatingTable } from "./_components/rating-table";
-import { MainRating } from "@/components/rating/main-rating";
 
 const MyRatingList = async () => {
   const { data: userSession } = await readUserSession();

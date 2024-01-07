@@ -1,11 +1,8 @@
 import BreadCrumb from "@/components/breadcrumb";
-import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
-import MuxPlayer from "@mux/mux-player-react";
-import { Trash } from "lucide-react";
-import MuxPlayerWrapper from "../_components/mux-player";
-import { getProcessVideo } from "../_actions/index.";
+import { getProcessVideo, getRatingContent } from "../_actions/index.";
+import VideoWrapper from "../_components/video-wrapper";
 
 const ViewVideo = async ({ params }: { params: { videoId: string } }) => {
   //Retrieve Video from database
@@ -15,8 +12,6 @@ const ViewVideo = async ({ params }: { params: { videoId: string } }) => {
   ];
 
   const course = await getProcessVideo(params.videoId);
-  console.log("course", course);
-  //let playbackId = course?.videos[0]?.playbackId;
   const playbackId = course?.videos[0]?.playbackId || "";
 
   return (
@@ -27,9 +22,10 @@ const ViewVideo = async ({ params }: { params: { videoId: string } }) => {
           <Heading title={"View Video"} description={"Watch the video"} />
         </div>
         <Separator />
-        <div>
-          <MuxPlayerWrapper playbackId={playbackId} />
-        </div>
+        <VideoWrapper
+          playbackId={playbackId}
+          categoryId={course?.categoryID || ""}
+        />
       </div>
     </>
   );

@@ -1,5 +1,4 @@
-import MainRating from "@/components/rating/main-rating";
-import { getProcessVideos, getRatingContent } from "./_actions/index.";
+import { getProcessVideos } from "./_actions/index.";
 import { VideosList } from "./_components/videos-list";
 
 const ProccesVideos = async () => {
@@ -39,13 +38,9 @@ const ProccesVideos = async () => {
   ];*/
 
   const items = await getProcessVideos();
-  const { ratingContent } = await getRatingContent(
-    "989651b1-eff2-4678-a722-e8374e139998"
-  );
 
   return (
     <div className="p-6 space-y-4">
-      <MainRating items={ratingContent} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
       <VideosList items={items} />
     </div>
