@@ -30,7 +30,11 @@ const VideoWrapper = ({
   return (
     <>
       <MuxPlayerWrapper ended={onVideoEnded} playbackId={playbackId} />
-      <MainRating isDisabled={isDisabled} items={ratingContent} />
+      <MainRating
+        playbackId={playbackId}
+        isDisabled={isDisabled}
+        items={ratingContent}
+      />
     </>
   );
 };

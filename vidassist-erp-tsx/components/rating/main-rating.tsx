@@ -8,7 +8,7 @@ import {
 } from "@/components/credenza";
 import { useMultiplestepForm } from "../rating-test/useMultiplestepForm";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NewRatingContent from "./new-rating-content";
 
 type RatingItems = {
@@ -28,9 +28,11 @@ type RatingItems = {
 export default function MainRating({
   items,
   isDisabled,
+  playbackId, //Needed for the sessionStorage
 }: {
   items: RatingItems;
   isDisabled: boolean;
+  playbackId: string;
 }) {
   const [rating, setRating] = useState(0);
   const {
@@ -44,17 +46,31 @@ export default function MainRating({
     showSuccessMsg,
   } = useMultiplestepForm(items?.rating_criteria?.length ?? 0);
 
-  const handleOnSubmit = () => {
-    console.log("submit");
-  };
+  const [isFulfilled, setIsFulfilled] = useState(true);
+
+  useEffect(() => {
+    handleRating();
+  }, [currentStepIndex]);
 
   const filterArrayByPosition = (position: number) => {
     return items?.rating_criteria?.filter((item) => item.position === position);
   };
 
-  const handleRating = (rate: number) => {
-    setRating(rate);
+  const isStepFulfilled = () => {
+    const id = items?.rating_criteria?.[currentStepIndex]?.id;
+    if (id) {
+      const item = sessionStorage.getItem(`${id}-${playbackId}`);
+      if (item !== null && parseInt(item) > 0) {
+        return false;
+      }
+    }
+    return true;
   };
+
+  const handleRating = () => {
+    setIsFulfilled(isStepFulfilled());
+  };
+
   return (
     <Credenza>
       <CredenzaTrigger asChild>
@@ -63,14 +79,16 @@ export default function MainRating({
         </Button>
       </CredenzaTrigger>
       <CredenzaContent className="max-w-md mx-auto shadow-md overflow-hidden md:max-w-2xl  rounded-lg">
-        <CredenzaBody className={`  w-full`}>
+        <CredenzaBody className={`w-full`}>
           <NewRatingContent
             criteria={filterArrayByPosition(currentStepIndex)}
             currentStepIndex={currentStepIndex}
             allSteps={steps}
             key={currentStepIndex}
+            onNewRating={handleRating}
+            playbackId={playbackId}
           />
-          <div className="mt-4 flex justify-between">
+          <div className="mt-4 flex justify-between mb-2">
             <Button
               onClick={previousStep}
               disabled={isFirstStep}
@@ -79,9 +97,11 @@ export default function MainRating({
               Previous
             </Button>
             {isLastStep ? (
-              <Button>Confirm</Button>
+              <Button disabled={isFulfilled}>Confirm</Button>
             ) : (
-              <Button onClick={nextStep}>Next</Button>
+              <Button disabled={isFulfilled} onClick={nextStep}>
+                Next
+              </Button>
             )}
           </div>
         </CredenzaBody>
