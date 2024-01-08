@@ -16,7 +16,7 @@ const VideoWrapper = ({
   const [ratingContent, setRatingContent] = useState(null);
   const [isDisabled, setIsDisabled] = useState(true);
 
-  const onVideoDelete = async () => {
+  const onVideoEnded = async () => {
     const result = await axios.patch(`/api/process-videos/rating`, {
       categoryId: categoryId,
     });
@@ -29,7 +29,7 @@ const VideoWrapper = ({
 
   return (
     <>
-      <MuxPlayerWrapper ended={onVideoDelete} playbackId={playbackId} />
+      <MuxPlayerWrapper ended={onVideoEnded} playbackId={playbackId} />
       <MainRating isDisabled={isDisabled} items={ratingContent} />
     </>
   );
