@@ -8,8 +8,11 @@ import {
 } from "@/components/credenza";
 import { useMultiplestepForm } from "../rating-test/useMultiplestepForm";
 import { Button } from "../ui/button";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import NewRatingContent from "./new-rating-content";
+import { createRatings } from "./_actions";
+import { readUserSession } from "@/lib/actions";
+import { toast } from "../ui/use-toast";
 
 type RatingItems = {
   categoryId: string;
@@ -29,12 +32,13 @@ export default function MainRating({
   items,
   isDisabled,
   playbackId, //Needed for the sessionStorage
+  courseId, //Need to create the ratings
 }: {
   items: RatingItems;
   isDisabled: boolean;
   playbackId: string;
+  courseId: string;
 }) {
-  const [rating, setRating] = useState(0);
   const {
     previousStep,
     nextStep,
@@ -44,6 +48,7 @@ export default function MainRating({
     steps,
     goTo,
     showSuccessMsg,
+    resetCurrentStepIndex,
   } = useMultiplestepForm(items?.rating_criteria?.length ?? 0);
 
   const [isFulfilled, setIsFulfilled] = useState(true);
@@ -71,6 +76,47 @@ export default function MainRating({
     setIsFulfilled(isStepFulfilled());
   };
 
+  const createValues = async () => {
+    const values = Object.values(sessionStorage);
+    const keys = Object.keys(sessionStorage);
+    const { data: userSession } = await readUserSession();
+    const ratingCriteria = keys.map((key, index) => {
+      return {
+        courseId: courseId,
+        rating_value: parseInt(values[index]),
+        comment: "",
+        userId: userSession.session?.user.id || "",
+      };
+    });
+    return ratingCriteria;
+  };
+
+  const onConfirm = useCallback(async () => {
+    const values = await createValues();
+    const { ratings, error } = await createRatings(values);
+    if (!error) {
+      //Clear the sessionStorage for the current video
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.includes(playbackId)) {
+          sessionStorage.removeItem(key);
+        }
+      });
+      resetCurrentStepIndex();
+      toast({
+        variant: "default",
+        title: "Success",
+        description: "Ratings created!",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not create ratings.",
+      });
+      console.log("[create-ratings] error: ", error);
+    }
+  }, []);
+
   return (
     <Credenza>
       <CredenzaTrigger asChild>
@@ -97,7 +143,9 @@ export default function MainRating({
               Previous
             </Button>
             {isLastStep ? (
-              <Button disabled={isFulfilled}>Confirm</Button>
+              <Button onClick={onConfirm} disabled={isFulfilled}>
+                Confirm
+              </Button>
             ) : (
               <Button disabled={isFulfilled} onClick={nextStep}>
                 Next

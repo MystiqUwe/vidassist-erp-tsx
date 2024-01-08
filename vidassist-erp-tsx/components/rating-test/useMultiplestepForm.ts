@@ -25,6 +25,10 @@ export function useMultiplestepForm(steps: number) {
     setCurrentStepIndex(index);
   };
 
+  const resetCurrentStepIndex = () => {
+    setCurrentStepIndex(0);
+  };
+
   return {
     currentStepIndex,
     steps,
@@ -34,5 +38,6 @@ export function useMultiplestepForm(steps: number) {
     goTo,
     nextStep,
     previousStep,
+    resetCurrentStepIndex,
   };
 }

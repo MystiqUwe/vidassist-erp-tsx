@@ -25,6 +25,7 @@ const ViewVideo = async ({ params }: { params: { videoId: string } }) => {
         <VideoWrapper
           playbackId={playbackId}
           categoryId={course?.categoryID || ""}
+          courseId={course?.id || ""}
         />
       </div>
     </>

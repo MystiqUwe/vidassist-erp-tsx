@@ -9,9 +9,11 @@ import { useState } from "react";
 const VideoWrapper = ({
   playbackId,
   categoryId,
+  courseId,
 }: {
   playbackId: string;
   categoryId: string;
+  courseId: string;
 }) => {
   const [ratingContent, setRatingContent] = useState(null);
   const [isDisabled, setIsDisabled] = useState(true);
@@ -34,6 +36,7 @@ const VideoWrapper = ({
         playbackId={playbackId}
         isDisabled={isDisabled}
         items={ratingContent}
+        courseId={courseId}
       />
     </>
   );
